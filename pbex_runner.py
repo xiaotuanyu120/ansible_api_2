@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import os
+
 from collections import namedtuple
 from ansible.parsing.dataloader import DataLoader
 from ansible.vars import VariableManager
@@ -53,12 +55,13 @@ class AnsibleRunner(object):
     def init_inventory(self, host_list='localhost'):
         """
         初始化inventory
-        host_list接受json数据传递给inventory_api的inventory_file
+        host_list接受json数据传递给inv_api的inv_file
         """
         host_list = inv_file(host_list)
         self.inventory = Inventory(loader=self.loader,
                                    variable_manager=self.variable_manager,
                                    host_list=host_list)
+        os.remove(host_list)
         self.variable_manager.set_inventory(self.inventory)
 
     def init_playbook(self, playbooks):
