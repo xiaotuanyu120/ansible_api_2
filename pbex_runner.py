@@ -7,7 +7,7 @@ from ansible.vars import VariableManager
 from ansible.inventory import Inventory
 from ansible.executor.playbook_executor import PlaybookExecutor
 
-from inv_api import inventory_file
+from inv_api import inv_file
 
 
 class AnsibleRunner(object):
@@ -55,7 +55,7 @@ class AnsibleRunner(object):
         初始化inventory
         host_list接受json数据传递给inventory_api的inventory_file
         """
-        host_list = inventory_file(host_list)
+        host_list = inv_file(host_list)
         self.inventory = Inventory(loader=self.loader,
                                    variable_manager=self.variable_manager,
                                    host_list=host_list)
@@ -83,6 +83,6 @@ if __name__ == "__main__":
                            become_method="sudo", become_user="root",
                            remote_user="gsmcupdate",
                            private_key_file='/root/.ssh/id_rsa')
-    runner.init_inventory(host_list='./hosts1')
+    runner.init_inventory(host_list='./hosts')
     runner.init_playbook(playbooks="./test.yml")
     result = runner.run_it()
