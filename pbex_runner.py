@@ -91,9 +91,9 @@ if __name__ == "__main__":
                            become="yes",
                            become_method="sudo",
                            become_user="root",
-                           remote_user="gsmcupdate",
+                           remote_user="remote",
                            private_key_file='/root/.ssh/id_rsa',
                            run_data={'role':'test', 'host':'webserver'})
-    runner.init_inventory(host_list='../ansible_play/hosts')
-    runner.init_playbook(playbooks="../ansible_play/test.yml")
+    runner.init_inventory(host_list='/path/to/hosts')
+    runner.init_playbook(playbooks="/path/to/main.yml")
     result = runner.run_it()
