@@ -11,7 +11,10 @@ api 2.0时代和1.0时代改变特别多，相当于把很多原生的类拿出�
 
 ### pbex_runner
 主程序，使用playbook_executor来直接执行一个playbook文件  
-使用时需要传入inventory的json信息或者inventory文件和playbook文件的目录路径
+使用时需要传入以下参数：
+- inventory的json信息或者inventory文件
+- playbook文件的目录路径
+- playbook使用的extra_vars参数(run_data)
 
 ---
 
