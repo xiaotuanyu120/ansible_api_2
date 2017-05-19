@@ -5,6 +5,15 @@ from tempfile import NamedTemporaryFile
 
 def inv_file(inv_data):
     """
+    provide inventory file.
+
+    accept data:
+    - inventory file
+    - string(string of a list)
+    - list
+
+    save inv_data to to a file, return file name.
+
     inv_data must be json like this:
     '''[{"groupA": ["192.168.0.11",
     "w1 ansible_host=192.168.0.22 ansible_port=222"]},
@@ -25,9 +34,11 @@ def inv_file(inv_data):
                 for sub_host in sub_hosts:
                     sub_host = "%s\n" % sub_host
                     hosts_file.write(sub_host)
+            hosts_file.write("\n")
         else:
             host = "%s\n" % host
             hosts_file.write(host)
+            hosts_file.write("\n")
     hosts_file.close()
     return hosts_file.name
 
@@ -63,5 +74,5 @@ def inv_json(inv_data_file):
     elif isinstance(inv_data_file, str):
         return inv_data_file
     else:
-        print "inventory data input is wrong format"
+        print("Wrong format!")
         return

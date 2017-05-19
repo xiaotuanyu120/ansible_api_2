@@ -80,7 +80,7 @@ class AnsibleRunner(object):
                                      options=self.options,
                                      passwords=self.passwords)
 
-    def run_it(self):
+    def run_playbook(self):
         result = self.pbex.run()
         return result
 
@@ -96,4 +96,4 @@ if __name__ == "__main__":
                            run_data={'role':'test', 'host':'webserver'})
     runner.init_inventory(host_list='/path/to/hosts')
     runner.init_playbook(playbooks="/path/to/main.yml")
-    result = runner.run_it()
+    result = runner.run_playbook()
