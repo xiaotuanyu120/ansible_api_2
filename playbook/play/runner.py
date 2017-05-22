@@ -13,8 +13,8 @@ from ansible.playbook.play import Play
 from ansible.executor.task_queue_manager import TaskQueueManager
 from ansible.plugins.callback import CallbackBase
 
-from inv_api import inv_file
-from 
+from playbook.inv_parser import inv_file
+from .vart_parser import var_file
 
 
 class ResultCallback(CallbackBase):
@@ -36,7 +36,7 @@ class Options(object):
     def __init__(self, vault_pass='', connection='local', module_path='',
                  forks=100, become=None, become_method=None, become_user=None,
                  remote_user=None, check=False, listhosts=None, listtasks=None,
-                 listtags=None, syntax=None, private_key_file=None, ansible_ssh_pass='123456'):
+                 listtags=None, syntax=None, private_key_file=None):
         self.connection = connection
         self.module_path = module_path
         self.forks = forks
@@ -50,7 +50,6 @@ class Options(object):
         self.listtags = listtags
         self.syntax = syntax
         self.private_key_file = private_key_file
-        self.ansible_ssh_pass = ansible_ssh_pass
 
 
 class AnsibleRunner(object):
@@ -74,9 +73,13 @@ class AnsibleRunner(object):
 
         self.variable_manager = VariableManager()
         self.loader = DataLoader()
-        self.passwords = dict(vault_pass=vault_pass)
+        self.passwords = dict(vault_pass=vault_pass, ansible_ssh_pass='123456')
         self.variable_manager.extra_vars = run_data
         # os.environ['ANSIBLE_CONFIG'] =
+
+    def init_variable(self, var_data):
+        var_temp_file = var_file(var_data)
+        self.variable_manager.add_group_vars_file(var_temp_file, self.loader)
 
     def init_inventory(self, host_list='localhost'):
         """
@@ -88,19 +91,8 @@ class AnsibleRunner(object):
                                    variable_manager=self.variable_manager,
                                    host_list=host_list)
         os.remove(host_list)
-        self.variable_manager.set_inventory(self.inventory)
 
-    # def init_playbook(self, playbooks):
-    #     """
-    #     使用playbook exexutor来直接执行playbook文件
-    #     playbooks需要转换成list，否则无法被迭代，playbooks是一个文件或者路径
-    #     """
-    #     self.pbex = PlaybookExecutor(playbooks=[playbooks],
-    #                                  inventory=self.inventory,
-    #                                  variable_manager=self.variable_manager,
-    #                                  loader=self.loader,
-    #                                  options=self.options,
-    #                                  passwords=self.passwords)
+        self.variable_manager.set_inventory(self.inventory)
 
     def init_play(self, hosts, module, name='', args=''):
         run_data = dict(
@@ -120,10 +112,6 @@ class AnsibleRunner(object):
             loader=self.loader
         )
         return play
-
-    # def run_playbook(self):
-    #     result = self.pbex.run()
-    #     return result
 
     def run_play(self, play):
         results_callback = ResultCallback()
@@ -145,22 +133,21 @@ class AnsibleRunner(object):
 
 
 if __name__ == "__main__":
-    runner = AnsibleRunner(connection='paramiko',
+    runner = AnsibleRunner(connection='ssh',
                            forks=100,
                            become="yes",
                            become_method="sudo",
                            become_user="root",
                            remote_user="gsmcupdate",
-                           private_key_file='/root/.ssh/id_rsa1',
+                           private_key_file='/root/.ssh/id_rsa',
                            run_data={'role':'test', 'host':'webserver'})
     runner.init_inventory(host_list='../ansible_play/hosts')
-    # runner.init_playbook(playbooks="../ansible_play/test.yml")
-    # result = runner.run_playbook()
+    # runner.init_variable('../ansible_play/group_vars/all')
 
     play = runner.init_play(
         hosts='webserver',
-        module="shell",
-        args = "ls"
-        # args=dict(name="vim", state="latest"),
+        module="yum",
+        # args = "ls"
+        args=dict(name="vim", state="latest"),
     )
     runner.run_play(play)

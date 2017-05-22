@@ -9,7 +9,7 @@ from ansible.vars import VariableManager
 from ansible.inventory import Inventory
 from ansible.executor.playbook_executor import PlaybookExecutor
 
-from inv_api import inv_file
+from inv_parser import inv_file
 
 
 class Options(object):
@@ -37,10 +37,6 @@ class AnsibleRunner(object):
                  forks=100, become=None, become_method=None, become_user=None,
                  remote_user=None, check=False, private_key_file=None,
                  run_data=None):
-        """
-        初始化ansible信息，主要是提供playbook_executor类使用的
-        options, variable_manager, loader, passwords
-        """
         self.options = Options(
             connection = connection,
             forks = forks,
@@ -53,13 +49,12 @@ class AnsibleRunner(object):
 
         self.variable_manager = VariableManager()
         self.loader = DataLoader()
-        self.passwords = dict(vault_pass=vault_pass)
+        self.passwords = dict(vault_pass=vault_pass, ansible_ssh_pass='123456')
         self.variable_manager.extra_vars = run_data
 
     def init_inventory(self, host_list='localhost'):
         """
-        初始化inventory
-        host_list接受json数据传递给inv_api的inv_file
+        host_list accept json or file
         """
         host_list = inv_file(host_list)
         self.inventory = Inventory(loader=self.loader,
@@ -70,8 +65,7 @@ class AnsibleRunner(object):
 
     def init_playbook(self, playbooks):
         """
-        使用playbook exexutor来直接执行playbook文件
-        playbooks需要转换成list，否则无法被迭代，playbooks是一个文件或者路径
+        playbooks accept yaml file
         """
         self.pbex = PlaybookExecutor(playbooks=[playbooks],
                                      inventory=self.inventory,
@@ -91,9 +85,9 @@ if __name__ == "__main__":
                            become="yes",
                            become_method="sudo",
                            become_user="root",
-                           remote_user="remote",
+                           remote_user="gsmcupdate",
                            private_key_file='/root/.ssh/id_rsa',
                            run_data={'role':'test', 'host':'webserver'})
-    runner.init_inventory(host_list='/path/to/hosts')
-    runner.init_playbook(playbooks="/path/to/main.yml")
+    runner.init_inventory(host_list='../ansible_play/hosts')
+    runner.init_playbook(playbooks="../ansible_play/test.yml")
     result = runner.run_playbook()
