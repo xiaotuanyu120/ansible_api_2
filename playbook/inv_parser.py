@@ -36,19 +36,18 @@ def inv_file(inv_data):
                     hosts_file.write(sub_host)
             hosts_file.write("\n")
         else:
-            host = "%s\n" % host
+            host = "%s\n\n" % host
             hosts_file.write(host)
-            hosts_file.write("\n")
     hosts_file.close()
     return hosts_file.name
 
 
-def inv_json(inv_data_file):
+def inv_json(inv_data):
     # if inv_data is file, convert it to json
-    if os.path.isfile(inv_data_file):
+    if os.path.isfile(inv_data):
         _inv_data = {"hosts":[], "groups":{}}
         group_tag = False
-        with open(inv_data_file, "r") as f:
+        with open(inv_data, "r") as f:
             for host in f:
                 host = host.strip()
                 if host.startswith("[") and host.endswith("]"):
@@ -69,10 +68,10 @@ def inv_json(inv_data_file):
         for group in _inv_data["groups"].keys():
             inv_data.append({group:_inv_data["groups"][group]})
         return json.dumps(inv_data)
-    elif isinstance(inv_data_file, list):
+    elif isinstance(inv_data, list):
         return json.dumps(list)
-    elif isinstance(inv_data_file, str):
-        return inv_data_file
+    elif isinstance(inv_data, str):
+        return inv_data
     else:
         print("Wrong format!")
         return
