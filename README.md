@@ -1,13 +1,14 @@
 # ansible_api_2 项目简介
-ansible api 2 相比 ansible api 1 改变很大，按照官方的话讲，新的api 2更加易于维护和扩展，也更加稳定。并且他们无意去封装一个类似于api 1中的runner类。
+ansible api 2.0 相比 ansible api 1.0 改变很大，按照官方的话讲，新的api 2.0更加易于维护和扩展，也更加稳定。并且他们无意去封装一个类似于api 1.0中的runner类。
 
-ansible api 2带来复杂性的同时，灵活性也大大增加，我们可以组建自己的runner类。虽然官方提供了一个[api2的示例](http://docs.ansible.com/ansible/dev_guide/developing_api.html)，但是这个文档过于简陋，并且直接在代码里面直接写play的方式并不好用(可能是由于我水平低)。而根据[这篇api2研究文档](https://serversforhackers.com/running-ansible-2-programmatically)受到的启发，显然playbook_executor的方式更简单易用一些，我们需要做的仅仅是管理好我们的playbook文件，并将它们传到我们自己的api封装的runner中。ansible_api_2综合各种解决方案的优点和缺点采取了playbook_executor的方法。
+ansible api 2.0带来复杂性的同时，灵活性也大大增加，我们可以灵活组建自己的runner类。虽然官方提供了一个[api2的示例](http://docs.ansible.com/ansible/dev_guide/developing_api.html)，但是这个文档过于简陋，并且直接在代码里面直接写play的方式并不好用(可能是由于我水平低)。而根据[这篇api2研究文档](https://serversforhackers.com/running-ansible-2-programmatically)受到的启发，显然playbook_executor的方式更简单易用一些，我们需要做的仅仅是管理好我们的playbook文件，并将它们传到我们自己的api封装的runner中。ansible_api_2综合各种解决方案的优点和缺点采取了playbook_executor的方法。
 
 ---
 ## QUICK START
 ### 1. 获取项目文件
 ``` bash
 git clone https://github.com/xiaotuanyu120/ansible_api_2.git
+pip install -r ansible_api_2/requirements.txt
 ```
 当获取了ansible_api_2的项目代码后，你可以将ansible_api_2目录中的conf,pb_data,playbook这三个目录mv到你自己的项目下合适的位置上。
 
