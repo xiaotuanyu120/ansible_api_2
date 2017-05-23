@@ -1,24 +1,54 @@
-# ansible api 2 研究
-api 2.0时代和1.0时代改变特别多，相当于把很多原生的类拿出来用，自己要想跟api1.0时代一样方便的话，需要自己去封装。  
-带来复杂性的同时，灵活性也大大增加，我们可以很方便的基于play来创建自己的task或者直接写成yaml文件，然后用playbook_executor来加载yaml文件执行，很多方案，就看我们自己希望如何去使用，当然，加载文件的是最方便的，因为一旦我们考虑使用ansible api，就基本上已经形成了成熟的ansible playbook的文件体系了。  
+# ansible_api_2 项目简介
+ansible api 2 相比 ansible api 1 改变很大，按照官方的话讲，新的api 2更加易于维护和扩展，也更加稳定。并且他们无意去封装一个类似于api 1中的runner类。
 
-本项目目前封装的api在ansible需要的三个输入部分做了以下处理
-- ansible配置和ssh部分目前是写死在程序里面
-- inventory部分可接受文件或者json数据(格式参见inv_api中的介绍)或者list
-- playbook目前是用文件或者路径
+ansible api 2带来复杂性的同时，灵活性也大大增加，我们可以组建自己的runner类。虽然官方提供了一个[api2的示例](http://docs.ansible.com/ansible/dev_guide/developing_api.html)，但是这个文档过于简陋，并且直接在代码里面直接写play的方式并不好用(可能是由于我水平低)。而根据[这篇api2研究文档](https://serversforhackers.com/running-ansible-2-programmatically)受到的启发，显然playbook_executor的方式更简单易用一些，我们需要做的仅仅是管理好我们的playbook文件，并将它们传到我们自己的api封装的runner中。ansible_api_2综合各种解决方案的优点和缺点采取了playbook_executor的方法。
 
 ---
+## QUICK START
+### 1. 获取项目文件
+``` bash
+git clone https://github.com/xiaotuanyu120/ansible_api_2.git
+```
+当获取了ansible_api_2的项目代码后，你可以将ansible_api_2目录中的conf,pb_data,playbook这三个目录mv到你自己的项目下合适的位置上。
 
-### pbex_runner
-主程序，使用playbook_executor来直接执行一个playbook文件  
-使用时需要传入以下参数：
-- inventory的json信息或者inventory文件
-- playbook文件路径
-- playbook使用的extra_vars参数(run_data)
+关于上面三个目录，下面是详细介绍：
+- conf, 里面存放的是playbook运行需要的options的一些配置信息，以json文件格式存放，配置可以参照`conf/default_ansible_option.json`内容
+- playbook, 主要的项目代码，里面是ansible_api_2封装的自己的runner
+- pb_data, 这个目录用于存放playbook运行所需要的yaml文件,roles目录等，就和本地使用ansible所创建的目录一样
 
----
+### 2. 调用playbook.runner
+以下是一个调用示例，主要的工作是给Runner类传入数据
+``` python
+from playbook import Runner
 
-### inv_api
-接收inventory文件的json信息，返回一个临时文件名称，被pbex_runner调用  
+
+ansible_option = "conf/ansible_option.json"
+run_data = {'role': 'test', 'host': 'webserver'}
+host_list='pb_data/hosts'
+playbooks="pb_data/test.yml"
+
+runner = Runner(ansible_option=ansible_option,
+                run_data=run_data,
+                host_list=host_list,
+                playbooks=playbooks)
+
+runner.run()
+```
+
+### 3. 关于传入给Runner的数据
+#### 1) ansible_option
+ansible_option是ansible需要的options参数，主要包含了一些类似于"become"、"become_method"、"private_key_file"等配置。  
+可接受json数据或者json文件。  
+详细配置可参照`conf/default_ansible_option.json`  
+> 推荐将配置文件以json格式放置在conf下面,conf目录最好和playbook目录同级
+
+#### 2) run_data
+run_data是ansible需要的extra_vars参数，可接收dict格式
+
+#### 3) host_list
+host_list是ansible需要的inventory数据，可接收json数据，list或inventory文件  
 json格式类似于:  
 '[{"groupA": ["192.168.0.11", "w1 ansible_host=192.168.0.22 ansible_port=222"]}, {"groupB": ["192.168.0.11"]}, "192.168.0.1"]'
+
+#### 4) playbooks
+playbooks是ansible需要的playbook文件，仅可接受yaml文件

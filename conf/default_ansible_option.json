@@ -1,0 +1,11 @@
+{
+   "connection":"paramiko",
+   "module_path":"",
+   "forks":100,
+   "become":"",
+   "become_method":"",
+   "become_user":"",
+   "remote_user":"",
+   "check":"",
+   "private_key_file":""
+}

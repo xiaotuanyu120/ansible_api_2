@@ -3,6 +3,9 @@ import json
 from tempfile import NamedTemporaryFile
 
 
+__all__ = ['inv_file']
+
+
 def inv_file(inv_data):
     """
     provide inventory file.
@@ -34,7 +37,7 @@ def inv_file(inv_data):
                 for sub_host in sub_hosts:
                     sub_host = "%s\n" % sub_host
                     hosts_file.write(sub_host)
-            hosts_file.write("\n")
+                hosts_file.write('\n')
         else:
             host = "%s\n\n" % host
             hosts_file.write(host)
@@ -44,12 +47,14 @@ def inv_file(inv_data):
 
 def inv_json(inv_data):
     # if inv_data is file, convert it to json
-    if os.path.isfile(inv_data):
+    if os.path.isfile(str(inv_data)):
         _inv_data = {"hosts":[], "groups":{}}
         group_tag = False
         with open(inv_data, "r") as f:
             for host in f:
                 host = host.strip()
+                if not host:
+                    continue
                 if host.startswith("[") and host.endswith("]"):
                     group_tag = False
                     host= host.split("[")[1].split("]")[0]
@@ -69,7 +74,7 @@ def inv_json(inv_data):
             inv_data.append({group:_inv_data["groups"][group]})
         return json.dumps(inv_data)
     elif isinstance(inv_data, list):
-        return json.dumps(list)
+        return json.dumps(inv_data)
     elif isinstance(inv_data, str):
         return inv_data
     else:

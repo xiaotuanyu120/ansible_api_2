@@ -146,8 +146,8 @@ if __name__ == "__main__":
 
     play = runner.init_play(
         hosts='webserver',
-        module="yum",
-        # args = "ls"
-        args=dict(name="vim", state="latest"),
+        module="shell",
+        args = "ls"
+        # args=dict(name="vim", state="latest"),
     )
     runner.run_play(play)
