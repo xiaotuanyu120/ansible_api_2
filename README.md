@@ -15,16 +15,37 @@ pip install -r ansible_api_2/requirements.txt
 关于上面三个目录，下面是详细介绍：
 - conf, 里面存放的是playbook运行需要的options的一些配置信息，以json文件格式存放，配置可以参照`conf/default_ansible_option.json`内容
 - playbook, 主要的项目代码，里面是ansible_api_2封装的自己的runner
-- pb_data, 这个目录用于存放playbook运行所需要的yaml文件,roles目录等，就和本地使用ansible所创建的目录一样
+- pb_data, 这个目录用于存放playbook运行所需要的yaml文件,roles目录和变量文件等，就和本地使用ansible所创建的目录一样
 
-### 2. 调用playbook.runner
-以下是一个调用示例，主要的工作是给Runner类传入数据
+
+### 2. 关于传入给Runner的数据
+#### 1) ansible_option
+ansible_option是ansible需要的options参数，主要包含了一些类似于"become"、"become_method"、"private_key_file"等配置。  
+可接收json数据或者json文件。  
+> 详细配置可参照`conf/default_ansible_option.json`  
+> 推荐将配置文件以json格式放置在conf下面,conf目录最好和playbook目录同级
+
+#### 2) run_data
+run_data是ansible需要的extra_vars参数，run_data必须是dict类型。
+
+#### 3) host_list
+host_list是ansible需要的inventory数据，可接收json数据，list或inventory文件  
+json格式类似于:  
+'[{"groupA": ["192.168.0.11", "w1 ansible_host=192.168.0.22 ansible_port=222"]}, {"groupB": ["192.168.0.11"]}, "192.168.0.1"]'
+> 如果是inventory文件的话，推荐放置在pb_data目录下
+
+#### 4) playbooks
+playbooks是ansible需要的playbook文件，仅可接收yaml文件
+> 推荐放置在pb_data目录下
+
+### 3. DEMO
+以下是一个调用示例
 ``` python
 from playbook import Runner
 
 
-ansible_option = "conf/ansible_option.json"
-run_data = {'role': 'test', 'host': 'webserver'}
+ansible_option = "conf/your_ansible_option.json"
+run_data = {'role': 'your_role', 'host': 'your_host'}
 host_list='pb_data/hosts'
 playbooks="pb_data/test.yml"
 
@@ -35,21 +56,3 @@ runner = Runner(ansible_option=ansible_option,
 
 runner.run()
 ```
-
-### 3. 关于传入给Runner的数据
-#### 1) ansible_option
-ansible_option是ansible需要的options参数，主要包含了一些类似于"become"、"become_method"、"private_key_file"等配置。  
-可接受json数据或者json文件。  
-详细配置可参照`conf/default_ansible_option.json`  
-> 推荐将配置文件以json格式放置在conf下面,conf目录最好和playbook目录同级
-
-#### 2) run_data
-run_data是ansible需要的extra_vars参数，可接收dict格式
-
-#### 3) host_list
-host_list是ansible需要的inventory数据，可接收json数据，list或inventory文件  
-json格式类似于:  
-'[{"groupA": ["192.168.0.11", "w1 ansible_host=192.168.0.22 ansible_port=222"]}, {"groupB": ["192.168.0.11"]}, "192.168.0.1"]'
-
-#### 4) playbooks
-playbooks是ansible需要的playbook文件，仅可接受yaml文件
