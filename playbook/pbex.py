@@ -2,18 +2,37 @@
 from __future__ import unicode_literals
 
 import os
+import json
 import yaml
 
 from ansible.parsing.dataloader import DataLoader
 from ansible.vars import VariableManager
 from ansible.inventory import Inventory
 from ansible.executor.playbook_executor import PlaybookExecutor
+from ansible.plugins.callback import CallbackBase
+from ansible.executor.task_queue_manager import TaskQueueManager
 
 from inv_parser import inv_file
 from option_parser import options_json
 
 
 __all__ = ['AnsibleRunner']
+
+
+class ResultCallback(CallbackBase):
+    """
+    customized callback
+    """
+
+    def v2_runner_on_ok(self, result, **kwargs):
+        """Print a json representation of the result
+
+        This method could store the result in an instance attribute for retrieval later
+        """
+        host = result._host
+        json_result = json.dumps({host.name: result._result}, indent=4)
+        print json_result
+        return json_result
 
 
 class CustomInventory(Inventory):
@@ -30,6 +49,20 @@ class CustomInventory(Inventory):
 
     def get_host_list_file(self):
         return self.host_list_file
+
+
+class CustomPlaybookExecutor(PlaybookExecutor):
+    """
+    customized pbex, just add customized callback
+    """
+
+    def __init__(self, playbooks, inventory, variable_manager, loader, options, passwords, stdout_callback):
+        super(CustomPlaybookExecutor, self).__init__(playbooks, inventory, variable_manager, loader, options, passwords)
+        self._stdout_callback = stdout_callback
+        if options.listhosts or options.listtasks or options.listtags or options.syntax:
+            self._tqm = None
+        else:
+            self._tqm = TaskQueueManager(inventory=inventory, variable_manager=variable_manager, loader=loader, options=options, passwords=self.passwords, stdout_callback=self._stdout_callback)
 
 
 class Options(object):
@@ -81,13 +114,15 @@ class AnsibleRunner(object):
                          )
         os.remove(self.inventory.get_host_list_file())
         self.variable_manager.set_inventory(self.inventory)
-
-        self.pbex = PlaybookExecutor(playbooks=[playbooks],
-                                     inventory=self.inventory,
-                                     variable_manager=self.variable_manager,
-                                     loader=self.loader,
-                                     options=self.options,
-                                     passwords=self.passwords)
+        self.result_callback = ResultCallback()
+        self.pbex = CustomPlaybookExecutor(
+                        playbooks=[playbooks],
+                        inventory=self.inventory,
+                        variable_manager=self.variable_manager,
+                        loader=self.loader,
+                        options=self.options,
+                        passwords=self.passwords,
+                        stdout_callback=self.result_callback)
 
     def run(self):
         result = self.pbex.run()
