@@ -3,9 +3,18 @@
 ---
 
 ## 0. 项目简介
-`ansible api 2.0`相比`ansible api 1.0`改变很大，按照官方的话讲，`ansible api 2.0`更加易于维护和扩展，也更加稳定。`ansible api 2.0`中更多的是把ansible使用的原生类提供出来，并且声称他们无意去封装一个类似于api 1.0中的runner类，而是把更多的精力放在了他们应该努力的地方。这样的话，如果希望使用api，我们就只能自己去封装自己的ansible runner。`ansible_api_2`就是希望能够实现一个比较简单易用的runner2.0。
+`ansible api 2.0`相比`ansible api 1.0`改变很大，按照官方的话讲，`ansible api 2.0`更加易于维护和扩展，也更加稳定。  
 
-`ansible api 2.0`带来复杂性的同时，灵活性也大大增加，我们可以灵活组建自己的runner类。虽然官方提供了一个[api2的示例](http://docs.ansible.com/ansible/dev_guide/developing_api.html)，但是这个文档过于简陋，并且直接在代码里面直接写play的方式并不好用(可能是由于我水平低)。而根据这篇[api2研究文档](https://serversforhackers.com/running-ansible-2-programmatically)受到的启发，显然playbook_executor的方式更简单易用一些，我们需要做的仅仅是管理好我们的playbook文件，并将它们传到我们自己的api封装的runner中。ansible_api_2综合各种解决方案的优点和缺点采取了playbook_executor的方法。
+`ansible api 2.0`中更多的是把ansible使用的原生类提供出来，并且声称他们无意去封装一个类似于api 1.0中的runner类，而是把更多的精力放在了他们应该努力的地方。  
+
+这样的话，如果希望使用api，我们就只能自己去封装自己的ansible runner。`ansible_api_2`就是希望能够实现一个比较简单易用的runner2.0。
+
+`ansible api 2.0`带来复杂性的同时，灵活性也大大增加，我们可以灵活组建自己的runner类。  
+
+虽然官方提供了一个[api2的示例](http://docs.ansible.com/ansible/dev_guide/developing_api.html)，但是这个文档过于简陋，并且直接在代码里面直接写play的方式并不好用(可能是由于我水平低)。而根据这篇[api2研究文档](https://serversforhackers.com/running-ansible-2-programmatically)受到的启发，显然playbook_executor的方式更简单易用一些，我们需要做的仅仅是管理好我们的playbook文件，并将它们传到我们自己的api封装的runner中。  
+
+`ansible_api_2`希望更多的关注在playbook yaml文件的编写、hosts和运行时传入的参数(extra_vars)上，这样更贴近我们手动管理ansible的方式。于是最终采用了playbook_executor直接来执行playbook yaml文件这种方法。
+> 对于playbook的yaml文件是手动编写模版还是系统生成，要结合自己的环境来考量。
 
 ---
 ## 1. QUICK START
