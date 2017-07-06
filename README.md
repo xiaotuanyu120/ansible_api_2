@@ -34,6 +34,8 @@ pip install -r ansible_api_2/requirements.txt
 
 # (可选)删除ansible_api_2
 rm -rf ansible_api_2
+#之所以要删除ansible_api_2目录，是因为我们只需要使用到上面的
+#conf、pb_data、playbook这三个目录，其他文件可删除
 ```
 > 当然，你也可以移动ansible_api_2/{conf|pb_data|playbook}到其他位置，只要确保它在你的项目中，并且你可以import它。
 
