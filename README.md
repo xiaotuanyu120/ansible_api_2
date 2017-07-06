@@ -69,7 +69,7 @@ ansible_option示例：
 推荐将配置文件以json格式放置在conf下面,conf目录最好和playbook目录同级  
 各option的详细说明参见[ansible文档](http://docs.ansible.com/ansible/intro_configuration.html)
 
-> 如果使用了passphrase包含的key文件，可以增加两个参数
+> 如果使用了passphrase保护的key文件，可以增加两个参数
 ```
 {
    "connection":"paramiko",
