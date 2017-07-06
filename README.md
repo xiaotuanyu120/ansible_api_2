@@ -69,6 +69,17 @@ ansible_option示例：
 推荐将配置文件以json格式放置在conf下面,conf目录最好和playbook目录同级  
 各option的详细说明参见[ansible文档](http://docs.ansible.com/ansible/intro_configuration.html)
 
+> 如果使用了passphrase包含的key文件，可以增加两个参数
+```
+{
+   "connection":"paramiko",
+   ......
+   "private_key_file":"path/to/keyfile",
+   "ansible_ssh_user":"user",
+   "ansible_password":"password",
+}
+```
+
 #### 2) run_data
 run_data是ansible需要的extra_vars参数，run_data必须是dict类型。  
 
